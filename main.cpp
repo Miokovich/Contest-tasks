@@ -61,19 +61,14 @@ public:
         return find_it != list_.end();
     }
 
-    std::vector<std::list<T>>& init_new_table(size_t new_size) {
+    void rehash() {
+        size_t new_size = size_table * FACTOR;
+
         std::vector<std::list<T>> new_table;
         new_table.reserve(new_size);
         for (size_t i = 0; i < new_size; ++i) {
             new_table.push_back(std::list<T>());
         }
-        return new_table;
-    }
-
-    void rehash() {
-        size_t new_size = size_table * FACTOR;
-
-        std::vector<std::list<T>> new_table = init_new_table(new_size);
 
         for (auto index : table) {
             for (auto elem : index) {
