@@ -110,13 +110,13 @@ std::list<size_t> min_path(const Graph &graph, const size_t& index_start,
 
 
 int main(){
-    size_t n, m;
+    size_t vertex, edges;
     size_t start, finish;
-    std::cin >> n >> m;
+    std::cin >> vertex >> edges;
     std::cin >> start >> finish;
-    graph_adj_list list_edg(n, false);
+    graph_adj_list list_edg(vertex, false);
     
-    for (size_t i = 0; i < m; ++i){
+    for (size_t i = 0; i < edges; ++i){
         size_t a, b;
         std::cin >> a >> b;
         list_edg.add_edge(a, b);
