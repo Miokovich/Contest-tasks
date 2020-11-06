@@ -66,16 +66,6 @@ public:
 	}
 };
 
-
-void get_parents_list(const std::vector<int> &parents, const size_t& cur_ind, 
-                  std::list<size_t> &path){
-    if (cur_ind != -1) {
-        get_parents_list(parents, parents[cur_ind], path);
-        path.push_back(cur_ind);
-    }
-
-}
-
 void DFS_visit(const Graph &graph, std::vector<char> &color,
                int start, bool is_root, size_t time,
                std::set<int> &answer, std::vector<int> &t_in, std::vector<int> &t_up) {
@@ -107,11 +97,11 @@ void DFS_visit(const Graph &graph, std::vector<char> &color,
 
 std::set<int> cut_vertices(const Graph &graph) {
     std::set<int> vertices;
-    std::vector<char> color(graph.get_vertex_count(), 'w');
+    std::vector<char> color(graph.get_vertex_count() + 1, 'w');
     size_t time = 0;
-    for (size_t i = 1; i < graph.get_vertex_count(); ++i) {
+    for (size_t i = 1; i < graph.get_vertex_count() + 1; ++i) {
         if (color[i] == 'w') {
-            std::vector<int> t_in(graph.get_vertex_count()), t_out(graph.get_vertex_count());
+            std::vector<int> t_in(graph.get_vertex_count() + 1), t_out(graph.get_vertex_count() + 1);
             DFS_visit(graph, color, i, true, time, vertices, t_in, t_out);
         }
     }
@@ -119,7 +109,7 @@ std::set<int> cut_vertices(const Graph &graph) {
 }
 
 
-int edgesain(){
+int main(){
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
     size_t vertex, edges;
