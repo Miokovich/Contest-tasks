@@ -77,8 +77,7 @@ enum colors {NOT_COLOR = 0, WHITE, BLACK};
 void color_graph(const Graph &graph, std::vector<colors> &color,
                  Graph::vertex start, colors cur_color, bool &cant_color){
     color[start] = cur_color;
-    auto get_neigh = graph.get_neighbors(start);
-    for (const auto &neigh : get_neigh){
+    for (const auto &neigh : graph.get_neighbors(start)){
         if (color[neigh] == NOT_COLOR){
             cur_color = (cur_color == WHITE) ? BLACK : WHITE; 
             color_graph(graph, color, neigh, cur_color, cant_color);
