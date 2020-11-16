@@ -23,7 +23,7 @@ public:
 	}
 
 	size_t get_edge_count() const {
-		if (is_directed == 0) {
+		if (!is_directed) {
 			return edge_count / 2;
 		}
 		return edge_count;
@@ -69,30 +69,30 @@ public:
 };
 
 
-void get_parents_list(const std::vector<int> &parents, const size_t& cur_ind, 
-                  std::list<size_t> &path){
-    if (cur_ind != -1) {
-        get_parents_list(parents, parents[cur_ind], path);
-        path.push_back(cur_ind);
+void build_shortest_path_by_prev_links(const std::vector<int> &vertex_parent, const Graph::vertex& current_vertex, 
+                                       std::list<Graph::vertex> &shortest_path){
+    if (current_vertex != -1) {
+        build_shortest_path_by_prev_links(vertex_parent, vertex_parent[current_vertex], shortest_path);
+        shortest_path.push_back(current_vertex);
     }
 
 }
 
 
-std::list<size_t> min_path(const Graph &graph, const size_t& index_start,
-           const size_t &finish) {
+std::list<size_t> min_path(const Graph &graph, const Graph::vertex& index_start,
+           const Graph::vertex &finish) {
 
-    std::queue<size_t> que;
-    size_t size_vert = graph.get_vertex_count();
+    std::queue<Graph::vertex> que;
+    Graph::vertex size_vert = graph.get_vertex_count();
     std::vector<int> dist(size_vert + 1, NOT_PROCESSED), parent(size_vert + 1, NOT_PROCESSED);
 
     que.push(index_start);
     dist[index_start] = 0;
 
     while (!que.empty()) {
-        size_t cur_ind = que.front();
+        Graph::vertex cur_ind = que.front();
         que.pop();
-        std::vector<size_t> neigh = graph.get_neighbors(cur_ind);
+        std::vector<Graph::vertex> neigh = graph.get_neighbors(cur_ind);
         for (auto elem : neigh) {
             if (dist[elem] == NOT_PROCESSED) {
                 dist[elem] = dist[cur_ind] + 1;
@@ -102,9 +102,9 @@ std::list<size_t> min_path(const Graph &graph, const size_t& index_start,
         }
     }
 
-    std::list<size_t> path;
+    std::list<Graph::vertex> path;
     if (dist[finish] == NOT_PROCESSED) return path;
-    get_parents_list(parent, finish, path);
+    build_shortest_path_by_prev_links(parent, finish, path);
     return path;
 }
 
