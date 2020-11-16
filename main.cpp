@@ -36,12 +36,12 @@ public:
 };
 
 
-class graph_adj_list : public Graph {
+class Graph_adj_list : public Graph {
 private:
 	std::vector<std::vector<vertex>> adj_list_;
 
 public:
-	graph_adj_list(size_t vertex_count, bool is_directed) : Graph(vertex_count, is_directed), adj_list_(vertex_count + 1) {}
+	Graph_adj_list(size_t vertex_count, bool is_directed) : Graph(vertex_count, is_directed), adj_list_(vertex_count + 1) {}
 
 	void add_edge(const vertex& start, const vertex& finish) override {
 		adj_list_[start].push_back(finish);
@@ -64,23 +64,23 @@ public:
 	}
 
     void remove_miltiple_edges() {
-        for (size_t i = 1; i <= vertex_count; ++i) {
-            sort(adj_list_[i].begin(), adj_list_[i].end());
+        for (Graph::vertex i = 1; i <= vertex_count; ++i) {
+            std::sort(adj_list_[i].begin(), adj_list_[i].end());
             std::unique(adj_list_[i].begin(), adj_list_[i].end());
         }
     }
 };
 
 
-enum colors {not_color = 0, white, black};
+enum colors {NOT_COLOR = 0, WHITE, BLACK};
 
 void color_graph(const Graph &graph, std::vector<colors> &color,
-                 int start, colors cur_color, bool &cant_color){
+                 Graph::vertex start, colors cur_color, bool &cant_color){
     color[start] = cur_color;
     auto get_neigh = graph.get_neighbors(start);
     for (const auto &neigh : get_neigh){
-        if (color[neigh] == not_color){
-            cur_color = (cur_color == white) ? black : white; 
+        if (color[neigh] == NOT_COLOR){
+            cur_color = (cur_color == WHITE) ? BLACK : WHITE; 
             color_graph(graph, color, neigh, cur_color, cant_color);
         } else {
             if (color[neigh] == cur_color) {
@@ -91,6 +91,20 @@ void color_graph(const Graph &graph, std::vector<colors> &color,
 
 }
 
+bool is_bipartite(const Graph &graph) {
+    std::vector<colors> color(graph.get_vertex_count() + 1, NOT_COLOR);
+    bool cant_color = false;
+    for (Graph::vertex i = 1; i <= graph.get_vertex_count(); ++i){
+        if (color[i] == NOT_COLOR) {
+            color_graph(graph, color, i, WHITE, cant_color);
+            if (cant_color) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 int main(){
     std::ios_base::sync_with_stdio(false);
@@ -98,28 +112,20 @@ int main(){
     size_t students_cnt, pair_students_cnt;
     std::cin >> students_cnt >> pair_students_cnt;
 
-    graph_adj_list list_edges(students_cnt, false);
-    
-    std::vector<colors> color(students_cnt + 1, not_color);
+    Graph_adj_list exchange_graph(students_cnt, false);
 
     for (size_t i = 0; i < pair_students_cnt; ++i){
         size_t first_student, second_student;
         std::cin >> first_student >> second_student;
-        list_edges.add_edge(first_student, second_student);
+        exchange_graph.add_edge(first_student, second_student);
     }
 
-    list_edges.remove_miltiple_edges();
+    exchange_graph.remove_miltiple_edges();
     
-    bool cant_color = false;
-    for (size_t i = 1; i <= students_cnt; ++i){
-        if (color[i] == not_color) {
-            color_graph(list_edges, color, i, white, cant_color);
-            if (cant_color) {
-                std::cout << "NO";
-                return 0;
-            }
-        }
+    if (is_bipartite(exchange_graph)) {
+        std::cout << "YES";
+    } else {
+        std::cout << "NO";
     }
-    std::cout << "YES";
     return 0;
 }
