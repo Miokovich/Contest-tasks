@@ -78,10 +78,7 @@ struct DFS_data {
     std::vector<int> t_in, t_up;
 };
 
-void DFS_visit(const Graph &graph, //std::vector<char> &color,
-            //    int start, bool is_root, size_t time,
-            //    std::set<int> &answer, std::vector<int> &t_in, std::vector<int> &t_up) {
-                DFS_data &data) {
+void DFS_visit(const Graph &graph, DFS_data &data) {
     data.color[data.start] = GRAY;
     size_t children_count = 0;
     ++data.time;
@@ -118,7 +115,7 @@ std::set<int> cut_vertices(const Graph &graph) {
     DFS_data data;
     data.color.resize(graph.get_vertex_count() + 1, WHITE);
     data.time = 0;
-    for (size_t i = 1; i < graph.get_vertex_count() + 1; ++i) {
+    for (Graph::vertex i = 1; i < graph.get_vertex_count() + 1; ++i) {
         if (data.color[i] == WHITE) {
             std::vector<int> t_in(graph.get_vertex_count() + 1), t_out(graph.get_vertex_count() + 1);
             data.t_in = t_in;
