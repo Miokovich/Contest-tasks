@@ -66,46 +66,70 @@ public:
 	}
 };
 
-void DFS_visit(const Graph &graph, std::vector<char> &color,
-               int start, bool is_root, size_t time,
-               std::set<int> &answer, std::vector<int> &t_in, std::vector<int> &t_up) {
-    color[start] = 'g';
-    size_t children = 0;
-    ++time;
-    t_in[start] = time;
-    t_up[start] = time;
-    auto neighbors = graph.get_neighbors(start);
-    for (const auto &neigh : neighbors){
-        if (color[neigh] != 'w'){
-            t_up[start] = std::min(t_up[start], t_in[neigh]);
+
+enum colors {NOT_COLOR = 0, WHITE, GRAY, BLACK};
+
+struct DFS_data {
+    std::vector<colors> color;
+    int start;
+    bool is_root;
+    size_t time;
+    std::set<int> answer;
+    std::vector<int> t_in, t_up;
+};
+
+void DFS_visit(const Graph &graph, //std::vector<char> &color,
+            //    int start, bool is_root, size_t time,
+            //    std::set<int> &answer, std::vector<int> &t_in, std::vector<int> &t_up) {
+                DFS_data &data) {
+    data.color[data.start] = GRAY;
+    size_t children_count = 0;
+    ++data.time;
+    data.t_in[data.start] = data.time;
+    data.t_up[data.start] = data.time;
+    auto neighbors = graph.get_neighbors(data.start);
+    for (const auto &neigh : neighbors) {
+        if (data.color[neigh] != WHITE) {
+            data.t_up[data.start] = std::min(data.t_up[data.start], data.t_in[neigh]);
         }
-        if (color[neigh] == 'w'){
-            DFS_visit(graph, color, neigh, false, time, answer, t_in, t_up);
-            ++children;
-            t_up[start] = std::min(t_up[start], t_up[neigh]);
-            if (t_in[start] <= t_up[neigh] && !is_root) {
-                answer.insert(start);
+        if (data.color[neigh] == WHITE) {
+            bool is_root = data.is_root;
+            int start = data.start;
+            data.is_root = false;
+            data.start = neigh;
+            DFS_visit(graph, data);
+            data.is_root = is_root;
+            data.start = data.start;
+            ++children_count;
+            data.t_up[data.start] = std::min(data.t_up[data.start], data.t_up[neigh]);
+            if (data.t_in[data.start] <= data.t_up[neigh] && !data.is_root) {
+                data.answer.insert(data.start);
             }
         }
     }
-    if (is_root && children >= 2) {
-        answer.insert(start);
+    if (data.is_root && children_count >= 2) {
+        data.answer.insert(data.start);
     }
-    color[start] = 'b';
+    data.color[data.start] = BLACK;
 }
 
 
 std::set<int> cut_vertices(const Graph &graph) {
-    std::set<int> vertices;
-    std::vector<char> color(graph.get_vertex_count() + 1, 'w');
-    size_t time = 0;
+    DFS_data data;
+    data.color.resize(graph.get_vertex_count() + 1, WHITE);
+    data.time = 0;
     for (size_t i = 1; i < graph.get_vertex_count() + 1; ++i) {
-        if (color[i] == 'w') {
+        if (data.color[i] == WHITE) {
             std::vector<int> t_in(graph.get_vertex_count() + 1), t_out(graph.get_vertex_count() + 1);
-            DFS_visit(graph, color, i, true, time, vertices, t_in, t_out);
+            data.t_in = t_in;
+            data.t_up = t_out;
+            data.start = i;
+            data.is_root = true;
+            data.time = 0;
+            DFS_visit(graph, data);
         }
     }
-    return vertices;
+    return data.answer;
 }
 
 
@@ -115,17 +139,17 @@ int main(){
     size_t vertex, edges;
     std::cin >> vertex >> edges;
 
-    graph_adj_list list_edg(vertex, false);
+    graph_adj_list list_edges(vertex, false);
 
     for (size_t i = 0; i < edges; ++i){
         size_t from, to;
         std::cin >> from >> to;
-        list_edg.add_edge(from, to);
+        list_edges.add_edge(from, to);
     }
 
-    std::set<int> answer = cut_vertices(list_edg);
-    std::cout << answer.size() << '\n';
-    for (auto i : answer) {
+    std::set<int> points_of_articulation = cut_vertices(list_edges);
+    std::cout << points_of_articulation.size() << '\n';
+    for (auto i : points_of_articulation) {
         std::cout << i << '\n';
     }
     return 0;
