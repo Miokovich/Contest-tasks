@@ -35,7 +35,6 @@ public:
 
 	virtual void add_edge(const vertex& start, const vertex& finish) = 0;
 	virtual size_t get_vertex_deg(const vertex& vertex) const = 0;
-	virtual std::vector<std::vector<vertex>> get_adjList() const = 0;
 	virtual std::vector<vertex> get_neighbors(const vertex& v) const = 0;
 };
 
@@ -57,10 +56,6 @@ public:
 
 	size_t get_vertex_deg(const vertex& vertex) const override {
 		return adj_list_[vertex].size();
-	}
-
-	std::vector<std::vector<vertex>> get_adjList() const override {
-		return adj_list_;
 	}
 
 	std::vector<vertex> get_neighbors(const vertex& vertex) const override {
