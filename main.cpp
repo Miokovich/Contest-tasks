@@ -79,57 +79,56 @@ void build_shortest_path_by_prev_links(const std::vector<int> &vertex_parent, co
 }
 
 
-std::list<size_t> min_path(const Graph &graph, const Graph::vertex& index_start,
-           const Graph::vertex &finish) {
+std::list<Graph::vertex> shortest_path(const Graph &graph, const Graph::vertex& index_start,
+           const Graph::vertex &index_finish) {
 
     std::queue<Graph::vertex> que;
-    Graph::vertex size_vert = graph.get_vertex_count();
-    std::vector<int> dist(size_vert + 1, NOT_PROCESSED), parent(size_vert + 1, NOT_PROCESSED);
+    Graph::vertex vertex_count = graph.get_vertex_count();
+    std::vector<int> dist(vertex_count + 1, NOT_PROCESSED), parent(vertex_count + 1, NOT_PROCESSED);
 
     que.push(index_start);
     dist[index_start] = 0;
 
     while (!que.empty()) {
-        Graph::vertex cur_ind = que.front();
+        Graph::vertex current_vertex = que.front();
         que.pop();
-        std::vector<Graph::vertex> neigh = graph.get_neighbors(cur_ind);
-        for (auto elem : neigh) {
+        for (auto elem : graph.get_neighbors(current_vertex)) {
             if (dist[elem] == NOT_PROCESSED) {
-                dist[elem] = dist[cur_ind] + 1;
-                parent[elem] = cur_ind;
+                dist[elem] = dist[current_vertex] + 1;
+                parent[elem] = current_vertex;
                 que.push(elem);
             }
         }
     }
 
     std::list<Graph::vertex> path;
-    if (dist[finish] == NOT_PROCESSED) return path;
-    build_shortest_path_by_prev_links(parent, finish, path);
+    if (dist[index_finish] == NOT_PROCESSED) return path;
+    build_shortest_path_by_prev_links(parent, index_finish, path);
     return path;
 }
 
 
 int main(){
-    size_t vertex, edges;
+    size_t vertex, vertex_count;
     size_t start, finish;
-    std::cin >> vertex >> edges;
+    std::cin >> vertex >> vertex_count;
     std::cin >> start >> finish;
     graph_adj_list list_edg(vertex, false);
     
-    for (size_t i = 0; i < edges; ++i){
-        size_t a, b;
-        std::cin >> a >> b;
-        list_edg.add_edge(a, b);
+    for (size_t i = 0; i < vertex_count; ++i){
+        size_t from, to;
+        std::cin >> from >> to;
+        list_edg.add_edge(from, to);
     }
 
-    auto answer = min_path(list_edg, start, finish);
-    if (answer.size() == 0) {
+    auto shortest_path_to_finish = shortest_path(list_edg, start, finish);
+    if (shortest_path_to_finish.size() == 0) {
         std::cout << "-1";
         return 0;
     }
-    std::cout << answer.size() - 1<< '\n';
-    for (auto elem : answer) {
-        std::cout << elem << ' ';
+    std::cout << shortest_path_to_finish.size() - 1<< '\n';
+    for (auto vertex_in_shortest_path : shortest_path_to_finish) {
+        std::cout << vertex_in_shortest_path << ' ';
     }
     return 0;
 }
